@@ -4,7 +4,6 @@
  */
 package com.blazartech.kafkademo.producer;
 
-import com.blazartech.kafkademo.data.DemoDataSerializer;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.kafka.clients.producer.ProducerConfig;
