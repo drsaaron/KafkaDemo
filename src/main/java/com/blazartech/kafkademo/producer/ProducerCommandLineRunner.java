@@ -6,10 +6,7 @@ package com.blazartech.kafkademo.producer;
 
 import com.blazartech.kafkademo.data.DemoData;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
-import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,6 +34,14 @@ public class ProducerCommandLineRunner implements CommandLineRunner {
     @Value("${demo.message}")
     private String demoMessage;
     
+    private static final BiConsumer<SendResult<String, DemoData>, Throwable> handler = (result, ex) -> {
+            if (ex != null) {
+               log.error("unable to send message: " + ex.getMessage(), ex);
+           } else {
+               log.info("sent message = [" + result.getProducerRecord().value() + "] with offset [" + result.getRecordMetadata().offset() + "]");
+           }
+        };
+    
     @Override
     public void run(String... args) throws Exception {
         log.info("sending messages");
@@ -49,19 +54,9 @@ public class ProducerCommandLineRunner implements CommandLineRunner {
             new DemoData(5, "Beck", 80)
         };
         
-        Collection<CompletableFuture<SendResult<String, DemoData>>> futures = Arrays.asList(data).stream()
+        Arrays.asList(data).stream()
                 .map(d -> kafkaTemplate.send(demoTopic, d))
-                .collect(Collectors.toList());
-        
-        BiConsumer<SendResult<String, DemoData>, Throwable> handler = (result, ex) -> {
-            if (ex != null) {
-               log.error("unable to send message: " + ex.getMessage(), ex);
-           } else {
-               log.info("sent message = [" + result.getProducerRecord().value() + "] with offset [" + result.getRecordMetadata().offset() + "]");
-           }
-        };
-        
-        futures.stream().forEach(f -> f.whenComplete(handler));
+                .forEach(f -> f.whenComplete(handler));
         
     }
     
