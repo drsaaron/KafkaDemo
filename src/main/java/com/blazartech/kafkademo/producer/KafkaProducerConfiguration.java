@@ -4,6 +4,7 @@
  */
 package com.blazartech.kafkademo.producer;
 
+import com.blazartech.kafkademo.data.DemoData;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -15,6 +16,7 @@ import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
+import org.springframework.kafka.support.serializer.JacksonJsonSerializer;
 
 /**
  *
@@ -28,17 +30,17 @@ public class KafkaProducerConfiguration {
     private String bootstrapAddress;
     
     @Bean
-    public ProducerFactory<String, String> producerFactory() {
+    public ProducerFactory<String, DemoData> producerFactory() {
         Map<String, Object> configProps = new HashMap<>();
         configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
         configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-        configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JacksonJsonSerializer.class);
         
         return new DefaultKafkaProducerFactory<>(configProps);
     }
     
     @Bean
-    public KafkaTemplate<String, String> kafkaTemplate(ProducerFactory<String, String> pf) {
-        return new KafkaTemplate<>(pf);
+    public KafkaTemplate<String, DemoData> kafkaTemplate(ProducerFactory<String, DemoData> producerFactory) {
+        return new KafkaTemplate<>(producerFactory);
     }
 }

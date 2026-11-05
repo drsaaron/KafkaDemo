@@ -4,6 +4,7 @@
  */
 package com.blazartech.kafkademo.consumer;
 
+import com.blazartech.kafkademo.data.DemoData;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -32,12 +33,13 @@ public class KafkaConsumerConfiguration {
     private String groupID;
     
     @Bean
-    public ConsumerFactory<String, Object> consumerFactory() {
+    public ConsumerFactory<String, DemoData> consumerFactory() {
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, groupID);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JacksonJsonDeserializer.class);
+        props.put(JacksonJsonDeserializer.TRUSTED_PACKAGES, "com.blazartech.kafkademo.data");
         
         return new DefaultKafkaConsumerFactory<>(props);
     }
@@ -45,8 +47,8 @@ public class KafkaConsumerConfiguration {
     // The method name MUST be 'kafkaListenerContainerFactory' 
     // or you must explicitly provide the name via @Bean("kafkaListenerContainerFactory")
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, Object> kafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, Object> factory = 
+    public ConcurrentKafkaListenerContainerFactory<String, DemoData> kafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, DemoData> factory = 
             new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
         return factory;

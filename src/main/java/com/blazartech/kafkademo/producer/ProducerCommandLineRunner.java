@@ -18,8 +18,6 @@ import org.springframework.core.annotation.Order;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Component;
-import tools.jackson.core.JacksonException;
-import tools.jackson.databind.ObjectMapper;
 
 /**
  *
@@ -31,23 +29,13 @@ import tools.jackson.databind.ObjectMapper;
 public class ProducerCommandLineRunner implements CommandLineRunner {
 
     @Autowired
-    private KafkaTemplate<String, String> kafkaTemplate;
+    private KafkaTemplate<String, DemoData> kafkaTemplate;
     
     @Value("${demo.topic}")
     private String demoTopic;
     
     @Value("${demo.message}")
     private String demoMessage;
-    
-    private static final ObjectMapper objectMapper = new ObjectMapper();
-    
-    private String dataToString(DemoData d) {
-        try {
-            return objectMapper.writeValueAsString(d);
-        } catch (JacksonException ex) {
-            throw new RuntimeException("error converting " + d + " to json: " + ex.getMessage(), ex);
-        }
-    }
     
     @Override
     public void run(String... args) throws Exception {
@@ -61,12 +49,11 @@ public class ProducerCommandLineRunner implements CommandLineRunner {
             new DemoData(5, "Beck", 80)
         };
         
-        Collection<CompletableFuture<SendResult<String, String>>> futures = Arrays.asList(data).stream()
-                .map(d -> dataToString(d))
+        Collection<CompletableFuture<SendResult<String, DemoData>>> futures = Arrays.asList(data).stream()
                 .map(d -> kafkaTemplate.send(demoTopic, d))
                 .collect(Collectors.toList());
         
-        BiConsumer<SendResult<String, String>, Throwable> handler = (result, ex) -> {
+        BiConsumer<SendResult<String, DemoData>, Throwable> handler = (result, ex) -> {
             if (ex != null) {
                log.error("unable to send message: " + ex.getMessage(), ex);
            } else {

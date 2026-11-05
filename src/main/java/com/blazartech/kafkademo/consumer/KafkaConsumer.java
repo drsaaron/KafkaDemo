@@ -8,8 +8,6 @@ import com.blazartech.kafkademo.data.DemoData;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
-import tools.jackson.core.JacksonException;
-import tools.jackson.databind.ObjectMapper;
 
 /**
  *
@@ -19,19 +17,8 @@ import tools.jackson.databind.ObjectMapper;
 @Slf4j
 public class KafkaConsumer {
     
-    private static final ObjectMapper objectMapper = new ObjectMapper();
-    
-    private DemoData stringToData(String json) {
-        try {
-            return objectMapper.readValue(json, DemoData.class);
-        } catch (JacksonException ex) {
-            throw new RuntimeException("error parsing json: " + ex.getMessage(), ex);
-        }
-    }
-    
     @KafkaListener(topics = "${demo.topic}", groupId = "${demo.groupID}")
-    public void listen(String message) {
-        DemoData data = stringToData(message);
+    public void listen(DemoData data) {
         log.info("got message {}", data);
     }
 }
