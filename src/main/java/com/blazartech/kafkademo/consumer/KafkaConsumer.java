@@ -5,11 +5,11 @@
 package com.blazartech.kafkademo.consumer;
 
 import com.blazartech.kafkademo.data.DemoData;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  *
@@ -24,7 +24,7 @@ public class KafkaConsumer {
     private DemoData stringToData(String json) {
         try {
             return objectMapper.readValue(json, DemoData.class);
-        } catch (JsonProcessingException ex) {
+        } catch (JacksonException ex) {
             throw new RuntimeException("error parsing json: " + ex.getMessage(), ex);
         }
     }

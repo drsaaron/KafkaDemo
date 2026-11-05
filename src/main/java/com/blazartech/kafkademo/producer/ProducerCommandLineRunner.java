@@ -5,8 +5,6 @@
 package com.blazartech.kafkademo.producer;
 
 import com.blazartech.kafkademo.data.DemoData;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
@@ -20,6 +18,8 @@ import org.springframework.core.annotation.Order;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Component;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  *
@@ -44,7 +44,7 @@ public class ProducerCommandLineRunner implements CommandLineRunner {
     private String dataToString(DemoData d) {
         try {
             return objectMapper.writeValueAsString(d);
-        } catch (JsonProcessingException ex) {
+        } catch (JacksonException ex) {
             throw new RuntimeException("error converting " + d + " to json: " + ex.getMessage(), ex);
         }
     }

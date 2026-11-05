@@ -4,9 +4,9 @@
  */
 package com.blazartech.kafkademo.data;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.kafka.common.serialization.Serializer;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  *
@@ -22,7 +22,7 @@ public class DemoDataSerializer implements Serializer<DemoData> {
         try {
             json = objectMapper.writeValueAsString(t);
             return json.getBytes();
-        } catch (JsonProcessingException ex) {
+        } catch (JacksonException ex) {
             throw new RuntimeException("error building JSON: " + ex.getMessage(), ex);
         }
     }
